@@ -104,6 +104,8 @@ private:
     bool                    m_customScanResponseData;
     bool                    m_scanResp;
     bool                    m_advDataSet;
+    bool                    m_isActive;
+    uint32_t                m_duration;
     void                   (*m_advCompCB)(NimBLEAdvertising *pAdv);
 
 };

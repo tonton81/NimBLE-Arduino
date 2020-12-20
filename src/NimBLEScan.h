@@ -91,7 +91,6 @@ private:
     bool                                m_stopped;
     bool                                m_wantDuplicates;
     NimBLEScanResults                   m_scanResults;
-    uint32_t                            m_duration;
     ble_task_data_t                     *m_pTaskData;
 };
 

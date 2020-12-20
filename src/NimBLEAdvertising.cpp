@@ -253,6 +253,9 @@ void NimBLEAdvertising::start(uint32_t duration, void (*advCompleteCB)(NimBLEAdv
         return;
     }
 
+    // Save the duration incase of host reset so we can restart with the same params
+    m_duration = duration;
+
     if(duration == 0){
         duration = BLE_HS_FOREVER;
     }
@@ -425,6 +428,8 @@ void NimBLEAdvertising::start(uint32_t duration, void (*advCompleteCB)(NimBLEAdv
         abort();
     }
 
+    m_isActive = true;
+
     NIMBLE_LOGD(LOG_TAG, "<< Advertising start");
 } // start
 
@@ -440,6 +445,7 @@ void NimBLEAdvertising::stop() {
         return;
     }
 
+    m_isActive = false;
     NIMBLE_LOGD(LOG_TAG, "<< stop");
 } // stop
 
@@ -448,6 +454,8 @@ void NimBLEAdvertising::stop() {
  * @brief Handles the callback when advertising stops.
  */
 void NimBLEAdvertising::advCompleteCB() {
+    m_isActive = false;
+
     if(m_advCompCB != nullptr) {
         m_advCompCB(this);
     }
@@ -459,7 +467,7 @@ void NimBLEAdvertising::advCompleteCB() {
  * @return true if advertising is active.
  */
 bool NimBLEAdvertising::isAdvertising() {
-    return ble_gap_adv_active();
+    return m_isActive;
 }
 
 
@@ -469,6 +477,11 @@ bool NimBLEAdvertising::isAdvertising() {
  */
 void NimBLEAdvertising::onHostReset() {
     m_advDataSet = false;
+    // If we were advertising before the reset, restart it now
+    if(m_isActive) {
+        m_isActive = false;
+        start(m_duration, m_advCompCB);
+    }
 }
 
 
