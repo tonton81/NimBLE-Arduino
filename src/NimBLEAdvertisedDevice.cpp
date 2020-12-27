@@ -295,13 +295,20 @@ bool NimBLEAdvertisedDevice::haveTXPower() {
  * https://www.bluetooth.com/specifications/assigned-numbers/generic-access-profile
  */
  void NimBLEAdvertisedDevice::parseAdvertisement(uint8_t* payload, uint8_t length) {
+    // If the data is the same as the last time we saw this device don't parse it again.
+    if(m_payload != nullptr && m_payloadLength == length) {
+        if(memcmp(m_payload, payload, length) == 0) {
+            return;
+        }
+    }
+
     struct ble_hs_adv_fields fields;
     int rc = ble_hs_adv_parse_fields(&fields, payload, length);
     if (rc != 0) {
         NIMBLE_LOGE(LOG_TAG, "Gap Event Parse ERROR.");
         return;
     }
-
+    
     m_payload = payload;
     m_payloadLength = length;
 
